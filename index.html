@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Board Cutting Calculator</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f1f5f9;
+    color: #1e293b;
+}
+
+header {
+    background: #173b32;
+    color: white;
+    text-align: center;
+    padding: 24px 15px;
+}
+
+header h1 {
+    margin: 0 0 8px;
+}
+
+header p {
+    margin: 0;
+    color: #d1fae5;
+}
+
+.container {
+    max-width: 1100px;
+    margin: 25px auto;
+    padding: 0 15px;
+}
+
+.card {
+    background: white;
+    padding: 22px;
+    margin-bottom: 20px;
+    border-radius: 12px;
+    box-shadow: 0 3px 12px #0000000c;
+}
+
+h2 {
+    font-size: 20px;
+    margin-top: 0;
+    color: #173b32;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 15px;
+}
+
+label {
+    display: block;
+    font-size: 14px;
+    margin-bottom: 6px;
+    font-weight: bold;
+}
+
+input, select {
+    width: 100%;
+    padding: 11px;
+    border: 1px solid #cbd5e1;
+    border-radius: 7px;
+    font-size: 15px;
+    background: white;
+}
+
+button {
+    border: none;
+    border-radius: 7px;
+    padding: 12px 16px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.primary {
+    background: #176b50;
+    color: white;
+}
+
+.secondary {
+    background: #e2e8f0;
+    color: #1e293b;
+}
+
+.danger {
+    background: #fee2e2;
+    color: #991b1b;
+    padding: 8px 10px;
+}
+
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 18px;
+}
+
+.table-wrap {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 570px;
+}
+
+th, td {
+    padding: 10px;
+    border-bottom: 1px solid #e2e8f0;
+    text-align: left;
+}
+
+th {
+    background: #f8fafc;
+}
+
+td input {
+    min-width: 90px;
+}
+
+.results {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.result-box {
+    padding: 18px;
+    background: #ecfdf5;
+    border-radius: 9px;
+}
+
+.result-box span {
+    display: block;
+    font-size: 13px;
+    color: #475569;
+    margin-bottom: 8px;
+}
+
+.result-box strong {
+    font-size: 25px;
+    color: #176b50;
+    overflow-wrap: anywhere;
+}
+
+.notice {
+    background: #fffbeb;
+    border-left: 4px solid #f59e0b;
+    padding: 13px;
+    font-size: 14px;
+    line-height: 1.6;
+    margin-top: 15px;
+}
+
+#layout {
+    display: grid;
+    gap: 25px;
+}
+
+.board {
+    border: 2px solid #64748b;
+    background: #f8fafc;
+    padding: 10px;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.board-title {
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.board-visual {
+    position: relative;
+    width: 100%;
+    border: 2px solid #334155;
+    background: #e2e8f0;
+    overflow: hidden;
+}
+
+.piece {
+    position: absolute;
+    border: 1px solid #ffffff;
+    background: #6eb89c;
+    color: #102d23;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    overflow: hidden;
+    font-size: 12px;
+    padding: 2px;
+}
+
+.empty {
+    color: #64748b;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+footer {
+    text-align: center;
+    padding: 20px;
+    color: #64748b;
+    font-size: 13px;
+}
+
+@media (max-width: 650px) {
+    .grid, .results {
+        grid-template-columns: 1fr;
+    }
+
+    .card {
+        padding: 15px;
+    }
+}
+
+@media print {
+    header, .no-print, footer {
+        display: none !important;
+    }
+
+    body {
+        background: white;
+    }
+
+    .card {
+        box-shadow: none;
+        border: 1px solid #ddd;
+        break-inside: avoid;
+    }
+
+    .container {
+        max-width: none;
+        margin: 0;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>🪵 Board Cutting Calculator</h1>
+    <p>Interior Design • Plywood • Furniture Planning</p>
+</header>
+
+<main class="container">
+
+    <section class="card">
+        <h2>1. Measurement Settings</h2>
+
+        <div class="grid">
+            <div>
+                <label for="unit">Measurement Unit</label>
+                <select id="unit">
+                    <option value="mm">Millimetres (mm)</option>
+                    <option value="ft">Feet (ft)</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="thickness">Board Thickness (mm)</label>
+                <input id="thickness" type="number"
+                       value="18" min="0.1" step="any">
+            </div>
+
+            <div>
+                <label for="kerf">Blade Kerf (<span class="unit-label">mm</span>)</label>
+                <input id="kerf" type="number"
+                       value="3" min="0" step="any">
+            </div>
+        </div>
+    </section>
+
+    <section class="card">
+        <h2>2. Plywood Board Size</h2>
+
+        <div class="grid">
+            <div>
+                <label for="boardL">Board Length (<span class="unit-label">mm</span>)</label>
+                <input id="boardL" type="number"
+                       value="2440" min="0.001" step="any">
+            </div>
+
+            <div>
+                <label for="boardW">Board Width (<span class="unit-label">mm</span>)</label>
+                <input id="boardW" type="number"
+                       value="1220" min="0.001" step="any">
+            </div>
+
+            <div>
+                <label>Standard Size</label>
+                <button class="secondary" id="standard"
+                        type="button">Use Standard 8 × 4 ft</button>
+            </div>
+        </div>
+
+        <p class="empty">
+            Default size: 2440 × 1220 mm, approximately 8 × 4 feet.
+            Actual supplier dimensions may vary.
+        </p>
+    </section>
+
+    <section class="card">
+        <h2>3. Required Cutting Pieces</h2>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Piece Name</th>
+                        <th>Length</th>
+                        <th>Width</th>
+                        <th>Quantity</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="pieceRows"></tbody>
+            </table>
+        </div>
+
+        <div class="actions no-print">
+            <button class="secondary" id="addRow" type="button">
+                + Add Piece
+            </button>
+
+            <button class="primary" id="calculate" type="button">
+                Calculate Cutting Plan
+            </button>
+        </div>
+    </section>
+
+    <section class="card" id="resultsCard">
+        <h2>4. Calculation Results</h2>
+
+        <div id="summary" class="empty">
+            Enter your board and piece dimensions, then click
+            Calculate Cutting Plan.
+        </div>
+
+        <div id="warnings"></div>
+    </section>
+
+    <section class="card">
+        <h2>5. Cutting Layout Preview</h2>
+
+        <div id="layout" class="empty">
+            Your cutting layout will appear here.
+        </div>
+    </section>
+
+    <section class="card no-print">
+        <h2>6. Save Your Plan</h2>
+
+        <div class="actions">
+            <button class="primary" id="print" type="button">
+                Print / Save as PDF
+            </button>
+
+            <button class="secondary" id="reset" type="button">
+                Reset Pieces
+            </button>
+        </div>
+    </section>
+
+</main>
+
+<footer>
+    Board Cutting Calculator • For preliminary furniture planning
+</footer>
+
+<script>
+const $ = id => document.getElementById(id);
+
+let lastCalculation = null;
+
+function currentUnit() {
+    return $("unit").value;
+}
+
+function toMM(value) {
+    return currentUnit() === "ft" ? value * 304.8 : value;
+}
+
+function fromMM(value) {
+    return currentUnit() === "ft" ? value / 304.8 : value;
+}
+
+function fmt(value) {
+    return Number(value.toFixed(2)).toString();
+}
+
+function displayDimension(mm) {
+    return fmt(fromMM(mm)) + " " + currentUnit();
+}
+
+function updateUnitLabels() {
+    document.querySelectorAll(".unit-label").forEach(el => {
+        el.textContent = currentUnit();
+    });
+}
+
+function convertInput(id, converter) {
+    const input = $(id);
+    const value = Number(input.value);
+
+    if (input.value.trim() !== "" && Number.isFinite(value)) {
+        input.value = fmt(converter(value));
+    }
+}
+
+function addRow(name = "", length = "", width = "", quantity = 1) {
+    const tr = document.createElement("tr");
+
+    tr.innerHTML = `
+        <td><input class="piece-name" aria-label="Piece name"
+                   placeholder="e.g. Wardrobe side"></td>
+        <td><input class="piece-length" aria-label="Piece length"
+                   type="number" min="0.001" step="any"
+                   placeholder="Length"></td>
+        <td><input class="piece-width" aria-label="Piece width"
+                   type="number" min="0.001" step="any"
+                   placeholder="Width"></td>
+        <td><input class="piece-qty" aria-label="Quantity"
+                   type="number" min="1" max="1000" step="1"
+                   value="1"></td>
+        <td><button class="danger remove-row" type="button">
+            Remove
+        </button></td>
+    `;
+
+    tr.querySelector(".piece-name").value = name;
+    tr.querySelector(".piece-length").value = length;
+    tr.querySelector(".piece-width").value = width;
+    tr.querySelector(".piece-qty").value = quantity;
+
+    $("pieceRows").appendChild(tr);
+}
+
+$("addRow").addEventListener("click", () => addRow());
+
+$("pieceRows").addEventListener("click", event => {
+    if (event.target.classList.contains("remove-row")) {
+        event.target.closest("tr").remove();
+    }
+});
+
+$("unit").addEventListener("change", () => {
+    // Convert existing length/width values to preserve actual dimensions.
+    ["boardL", "boardW", "kerf"].forEach(id => {
+        convertInput(id, value =>
+            currentUnit() === "ft" ? value / 304.8 : value * 304.8
+        );
+    });
+
+    document.querySelectorAll(".piece-length, .piece-width")
+        .forEach(input => {
+            convertInput(input.id || "", value =>
+                currentUnit() === "ft" ? value / 304.8 : value * 304.8
+            );
+        });
+
+    updateUnitLabels();
+    lastCalculation = null;
+    $("summary").innerHTML =
+        "Units changed. Calculate again to update your cutting plan.";
+    $("layout").innerHTML = "";
+});
+
+$("standard").addEventListener("click", () => {
+    $("boardL").value = currentUnit() === "ft" ? "8" : "2440";
+    $("boardW").value = currentUnit() === "ft" ? "4" : "1220";
+});
+
+function getPieces() {
+    const pieces = [];
+    const errors = [];
+
+    const rows = [...$("pieceRows").querySelectorAll("tr")];
+
+    rows.forEach((row, index) => {
+        const name = row.querySelector(".piece-name").value.trim()
+            || "Piece " + (index + 1);
+
+        const lText = row.querySelector(".piece-length").value;
+        const wText = row.querySelector(".piece-width").value;
+        const qText = row.querySelector(".piece-qty").value;
+
+        if (lText === "" && wText === "" && qText === "1") {
+            return;
+        }
+
+        const l = Number(lText);
+        const w = Number(wText);
+        const q = Number(qText);
+
+        if (!Number.isFinite(l) || !Number.isFinite(w) ||
+            l <= 0 || w <= 0) {
+            errors.push(name + ": enter a valid positive length and width.");
+            return;
+        }
+
+        if (!Number.isInteger(q) || q < 1 || q > 1000) {
+            errors.push(name + ": quantity must be a whole number from 1 to 1000.");
+            return;
+        }
+
+        for (let i = 0; i < q; i++) {
+            pieces.push({
+                name: name + (q > 1 ? " " + (i + 1) : ""),
+                l: toMM(l),
+                w: toMM(w)
+            });
+        }
+    });
+
+    return { pieces, errors };
+}
+
+/*
+  Shelf-based placement:
+  - Pieces may rotate 90 degrees.
+  - Pieces are placed in horizontal shelves.
+  - This is a heuristic, not a globally optimal nesting algorithm.
+*/
+function packPieces(pieces, boardL, boardW, kerf) {
+    const boards = [];
+
+    const sorted = [...pieces].sort((a, b) =>
+        Math.max(b.l, b.w) - Math.max(a.l, a.w)
+    );
+
+    function tryPlace(board, piece) {
+        const orientations = [
+            { l: piece.l, w: piece.w, rotated: false },
+            { l: piece.w, w: piece.l, rotated: true }
+        ];
+
+        for (const orientation of orientations) {
+            const pL = orientation.l;
+            const pW = orientation.w;
+
+            // Try an existing shelf.
+            for (const shelf of board.shelves) {
+                if (pW <= shelf.h + 0.000001 &&
+                    shelf.x + pL <= boardL + 0.000001) {
+
+                    const placed = {
+                        ...piece,
+                        x: shelf.x,
+                        y: shelf.y,
+                        l: pL,
+                        w: pW,
+                        rotated: orientation.rotated
+                    };
+
+                    shelf.x += pL + kerf;
+                    board.placements.push(placed);
+                    return true;
+                }
+            }
+
+            // Try a new shelf on the current board.
+            const nextY = board.shelves.length
+                ? board.shelves[board.shelves.length - 1].y
+                    + board.shelves[board.shelves.length - 1].h + kerf
+                : 0;
+
+            if (pL <= boardL + 0.000001 &&
+                nextY + pW <= boardW + 0.000001) {
+
+                const placed = {
+                    ...piece,
+                    x: 0,
+                    y: nextY,
+                    l: pL,
+                    w: pW,
+                    rotated: orientation.rotated
+                };
+
+                board.shelves.push({
+                    y: nextY,
+                    h: pW,
+                    x: pL + kerf
+                });
+
+                board.placements.push(placed);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    for (const piece of sorted) {
+        if (piece.l > boardL && piece.w > boardL &&
+            piece.l > boardW && piece.w > boardW) {
+            return {
+                error: piece.name + " is larger than the board in both orientations."
+            };
+        }
+
+        let placed = false;
+
+        for (const board of boards) {
+            if (tryPlace(board, piece)) {
+                placed = true;
+                break;
+            }
+        }
+
+        if (!placed) {
+            const board = {
+                shelves: [],
+                placements: []
+            };
+
+            if (!tryPlace(board, piece)) {
+                return {
+                    error: piece.name +
+                        " does not fit the board. Check dimensions."
+                };
+            }
+
+            boards.push(board);
+        }
+    }
+
+    return { boards };
+}
+
+function renderLayout(boards, boardL, boardW) {
+    const layout = $("layout");
+    layout.innerHTML = "";
+
+    if (!boards.length) {
+        layout.textContent = "No pieces to display.";
+        return;
+    }
+
+    boards.forEach((board, index) => {
+        const wrapper = document.createElement("div");
+        wrapper.className = "board";
+
+        const title = document.createElement("div");
+        title.className = "board-title";
+        title.textContent = "Board " + (index + 1);
+        wrapper.appendChild(title);
+
+        const visual = document.createElement("div");
+        visual.className = "board-visual";
+
+        // Keep the preview proportional while fitting on the screen.
+        visual.style.aspectRatio = boardL + " / " + boardW;
+
+        board.placements.forEach(piece => {
+            const block = document.createElement("div");
+            block.className = "piece";
+
+            block.style.left = (piece.x / boardL * 100) + "%";
+            block.style.top = (piece.y / boardW * 100) + "%";
+            block.style.width = (piece.l / boardL * 100) + "%";
+            block.style.height = (piece.w / boardW * 100) + "%";
+
+            block.title = piece.name + ": " +
+                displayDimension(piece.l) + " × " +
+                displayDimension(piece.w);
+
+            block.textContent = piece.name + " (" +
+                fmt(fromMM(piece.l)) + " × " +
+                fmt(fromMM(piece.w)) + ")";
+
+            visual.appendChild(block);
+        });
+
+        wrapper.appendChild(visual);
+        layout.appendChild(wrapper);
+    });
+}
+
+function calculate() {
+    $("warnings").innerHTML = "";
+
+    const boardL = toMM(Number($("boardL").value));
+    const boardW = toMM(Number($("boardW").value));
+    const thickness = Number($("thickness").value);
+    const kerf = toMM(Number($("kerf").value));
+
+    if (![boardL, boardW, thickness, kerf].every(Number.isFinite) ||
+        boardL <= 0 || boardW <= 0 ||
+        thickness <= 0 || kerf < 0) {
+        $("summary").textContent =
+            "Please enter valid positive board dimensions and thickness. Kerf cannot be negative.";
+        $("layout").innerHTML = "";
+        return;
+    }
+
+    const { pieces, errors } = getPieces();
+
+    if (errors.length) {
+        $("summary").textContent = errors.join(" ");
+        $("layout").innerHTML = "";
+        return;
+    }
+
+    if (!pieces.length) {
+        $("summary").textContent = "Please enter at least one cutting piece.";
+        $("layout").innerHTML = "";
+        return;
+    }
+
+    const result = packPieces(pieces, boardL, boardW, kerf);
+
+    if (result.error) {
+        $("summary").textContent = result.error;
+        $("layout").innerHTML = "";
+        return;
+    }
+
+    const boards = result.boards;
+
+    const boardArea = boardL * boardW;
+    const pieceArea = pieces.reduce((sum, p) => sum + p.l * p.w, 0);
+    const totalBoardArea = boards.length * boardArea;
+    const wasteArea = Math.max(0, totalBoardArea - pieceArea);
+    const wastePercent = totalBoardArea > 0
+        ? wasteArea / totalBoardArea * 100 : 0;
+
+    const outputUnit = currentUnit();
+    const areaScale = outputUnit === "ft" ? 304.8 * 304.8 : 1;
+    const areaUnit = outputUnit === "ft" ? "sq ft" : "mm²";
+
+    $("summary").innerHTML = `
+        <div class="results">
+            <div class="result-box">
+                <span>Required Pieces</span>
+                <strong>${pieces.length}</strong>
+            </div>
+            <div class="result-box">
+                <span>Estimated Boards</span>
+                <strong>${boards.length}</strong>
+            </div>
+            <div class="result-box">
+                <span>Estimated Area Waste</span>
+                <strong>${wastePercent.toFixed(1)}%</strong>
+            </div>
+        </div>
+
+        <div style="margin-top:18px;line-height:1.9">
+            <b>Board size:</b>
+            ${displayDimension(boardL)} × ${displayDimension(boardW)}<br>
+            <b>Thickness:</b> ${fmt(thickness)} mm<br>
+            <b>Total board area:</b>
+            ${fmt(totalBoardArea / areaScale)} ${areaUnit}<br>
+            <b>Required piece area:</b>
+            ${fmt(pieceArea / areaScale)} ${areaUnit}<br>
+            <b>Estimated unused area:</b>
+            ${fmt(wasteArea / areaScale)} ${areaUnit}
+        </div>
+
+        <div class="notice">
+            This is a preliminary shelf-layout estimate, not an optimized
+            professional cutting plan. Area waste includes unused board
+            regions and is not the same as recoverable offcut waste.
+            Actual results may vary due to grain direction, edge trimming,
+            saw kerf, defects, and cutting sequence. Verify dimensions
+            before cutting.
+        </div>
+    `;
+
+    lastCalculation = {
+        boards,
+        boardL,
+        boardW,
+        thickness,
+        kerf
+    };
+
+    renderLayout(boards, boardL, boardW);
+}
+
+$("calculate").addEventListener("click", calculate);
+
+$("print").addEventListener("click", () => {
+    if (!lastCalculation) {
+        alert("Calculate the cutting plan first.");
+        return;
+    }
+
+    window.print();
+});
+
+$("reset").addEventListener("click", () => {
+    $("
